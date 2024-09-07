@@ -35,8 +35,6 @@ export class AuthService {
     @InjectQueue(Config.CREATE_USER_QUEUE)
     private readonly createUserQueue: Queue,
 
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-
     private jwtService: JwtService,
   ) {}
 
