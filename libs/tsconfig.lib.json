@@ -1,0 +1,15 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+      "outDir": "./dist",                    // Output directory for compiled files
+      "rootDir": "./src",                    // Root directory of the library source code
+      "declaration": false,                   // Emit TypeScript declaration files
+    //   "sourceMap": true,                     // Emit source maps for easier debugging
+    //   "composite": true,                     // Enables project references
+    //   "incremental": true,                   // Speeds up compilation by using previous builds
+    //   "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",  // Info file for incremental builds
+    //   "skipLibCheck": true                   // Skip type checking of .d.ts files
+    },
+    "include": ["src/**/*"],                 // Include all TypeScript files in src
+    "exclude": ["node_modules", "dist"]      // Exclude node_modules and dist directories
+  }
