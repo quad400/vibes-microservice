@@ -10,6 +10,6 @@ export class TrackLikeRepository extends AbstractRepository<TrackLikeEntity>{
         @InjectRepository(TrackLikeEntity)
         protected readonly trackLikeRepo: Repository<TrackLikeEntity>
     ){
-        super(trackLikeRepo)
+        super(trackLikeRepo, "Track Like")
     }
 }

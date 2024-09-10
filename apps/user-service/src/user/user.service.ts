@@ -13,6 +13,7 @@ import { Config } from '@libs/common/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { AlbumEntity } from 'apps/track-service/src/album/entities/album.entity';
 import { FavouriteAlbumRepository } from './repos/favourite-album.repository';
+import { FavouriteTrackRepository } from './repos/favourite-track.repository';
 
 @Injectable()
 export class UserService {
@@ -20,6 +21,7 @@ export class UserService {
     private readonly userRepository: UserRepository,
     private readonly followRepository: FollowRepository,
     private readonly favouriteAlbumRepository: FavouriteAlbumRepository,
+    private readonly favouriteTrackRepository: FavouriteTrackRepository,
 
     @Inject(Config.TRACK_SERVICE) private trackClient: ClientProxy,
   ) {}
@@ -164,6 +166,82 @@ export class UserService {
         return {
           ...albumFav,
           album,
+        };
+      }),
+    );
+
+    const data = {
+      currentPage: result.currentPage,
+      total: result.total,
+      hasNextPage: result.hasNextPage,
+      hasPreviousPage: result.hasPreviousPage,
+      results: results,
+    };
+
+    return Response.success(
+      data,
+      'Favourite List retrieved successfully',
+      HttpStatus.OK,
+    );
+  }
+
+  async addOrRemoveFavouriteTrack(userId: string, trackId: string) {
+
+    const trackData = (await lastValueFrom(
+      this.trackClient.send('get_track', { trackId }),
+    ));
+
+    const track = trackData.data as AlbumEntity
+
+    const data = {
+      user_id: userId,
+      track_id: track.id,
+    };
+    const trackFavExist = await this.favouriteTrackRepository.findOneData({
+      data,
+      bypassExistenceCheck: true
+    });
+
+    if (trackFavExist) {
+      await this.favouriteTrackRepository.delete(trackFavExist.id);
+      return Response.success(
+        null,
+        'Track successfully removed from favourites',
+        HttpStatus.OK,
+      );
+    } else {
+      await this.favouriteTrackRepository.create(data);
+      return Response.success(
+        null,
+        'Track successfully added to favourites',
+        HttpStatus.OK,
+      );
+    }
+  }
+
+  async getTrackFavourites(userId: string, query: QueryOptionsDto) {
+    const { limit, page } = query;
+
+    const result = await this.favouriteTrackRepository.paginatedFind({
+      options: {
+        where: {
+          user_id: userId,
+        },
+      },
+      page,
+      limit,
+    });
+
+    const results = await Promise.all(
+      result.data.map(async (trackFav) => {
+        const track = (await lastValueFrom(
+          this.trackClient.send('get_track', { albumId: trackFav.id }),
+        ));
+
+        // Combine album with artist details
+        return {
+          ...trackFav,
+          track,
         };
       }),
     );

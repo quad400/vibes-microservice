@@ -10,6 +10,6 @@ export class AlbumRepository extends AbstractRepository<AlbumEntity>{
         @InjectRepository(AlbumEntity)
         protected readonly albumRepo: Repository<AlbumEntity>
     ){
-        super(albumRepo)
+        super(albumRepo, "Album")
     }
 }

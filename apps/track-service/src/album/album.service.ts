@@ -82,7 +82,7 @@ export class AlbumService {
     const results = await Promise.all(
       result.data.map(async (album) => {
         const artist = (await lastValueFrom(
-          this.userClient.send('get_artist_by_id', { albumId: album.id }),
+          this.userClient.send('get_artist_by_id', { artistId: album.id }),
         )) as ArtistEntity;
 
         // Combine album with artist details

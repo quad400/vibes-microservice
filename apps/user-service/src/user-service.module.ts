@@ -10,7 +10,6 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import { Config } from '@libs/common/config';
 import { ArtistModule } from './artist/artist.module';
-import { Redis } from 'ioredis';
 import { ClientsModule } from '@nestjs/microservices';
 
 @Module({

@@ -5,13 +5,19 @@ import {
   DeepPartial,
   SelectQueryBuilder,
   Like,
+  ILike,
 } from 'typeorm';
 import { NotFoundException, ConflictException } from '@nestjs/common';
 import { AbstractEntity } from './abstract.entity';
+import { SearchKey } from '../enums/search.enum';
 
 export abstract class AbstractRepository<T extends AbstractEntity> {
-  constructor(protected readonly repository: Repository<T>) {
+  constructor(
+    protected readonly repository: Repository<T>,
+    private readonly entityName: string,
+  ) {
     this.repository = repository;
+
   }
   async save(entity: T): Promise<T> {
     return this.repository.save(entity);
@@ -32,7 +38,7 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
 
     if (entity) {
       throw new ConflictException(
-        `Entity with ${uniqueField} "${data[uniqueField]}" already exists.`,
+        `${this.entityName} with ${uniqueField} "${data[uniqueField]}" already exists.`,
       );
     }
     return true;
@@ -44,6 +50,12 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
     return await this.repository.save(data as T);
   }
 
+  // Create method with uniqueness check and active records only
+  async createWithoutUniqueCheck(data: DeepPartial<T>, uniqueField?: string): Promise<T> {
+    // await this.repository.create(data);
+    return await this.repository.save(data as T);
+  }
+
   // Find one method with isDeleted check
   async findOne(id: string, options?: FindOneOptions<T>): Promise<T> {
     const entity = await this.repository.findOne({
@@ -52,7 +64,7 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
     });
     if (!entity) {
       throw new NotFoundException(
-        `Entity with ID "${id}" does not exist or has been deleted.`,
+        `${this.entityName} with ID "${id}" does not exist or has been deleted.`,
       );
     }
     return entity;
@@ -75,7 +87,7 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
 
     if (!entity && !bypassExistenceCheck) {
       throw new NotFoundException(
-        `Entity with ID "${typeof data === 'string' ? data : JSON.stringify(data)}" does not exist or has been deleted.`,
+        `${this.entityName} with ID "${typeof data === 'string' ? data : JSON.stringify(data)}" does not exist or has been deleted.`,
       );
     }
 
@@ -97,22 +109,25 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
 
     if (!entity) {
       throw new NotFoundException(
-        `Entity with ID "${typeof data === 'string' ? data : JSON.stringify(data)}" does not exist.`,
+        `${this.entityName} with ID "${typeof data === 'string' ? data : JSON.stringify(data)}" does not exist.`,
       );
     }
     return entity;
   }
 
+  
   // Pagination method with isDeleted check and total count
   async paginatedFind({
     options,
     search,
     page = 1,
     limit = 10,
+    searchKey=SearchKey.NAME
   }: {
     options: FindManyOptions<T>;
-    page: number;
-    limit: number;
+    page?: number;
+    limit?: number;
+    searchKey?: SearchKey;
     search?: string;
   }): Promise<{
     data: T[];
@@ -124,8 +139,13 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
     const whereCondition = {
       is_deleted: false,
       ...(options.where as FindManyOptions['where']),
-      ...(search && { name: Like(`%${search}%`) }),
+      ...(search
+        ? searchKey === SearchKey.NAME
+          ? { name: ILike(`%${search}%`) }  // Case-insensitive search for name
+          : { title: ILike(`%${search}%`) } // Case-insensitive search for title
+        : {}),
     } as FindManyOptions['where'];
+    
     const [data, total] = await this.repository.findAndCount({
       where: whereCondition,
       skip: (page - 1) * limit,
@@ -156,7 +176,7 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
     const whereCondition = {
       is_deleted: false,
       ...(options.where as FindManyOptions['where']),
-      ...(search && { name: Like(`%${search}%`) }),
+      ...(search && { name: ILike(`%${search}%`) }),
     } as FindManyOptions['where'];
     const data = await this.repository.find({
       where: whereCondition,

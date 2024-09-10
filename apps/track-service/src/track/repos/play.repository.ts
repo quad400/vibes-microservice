@@ -10,6 +10,6 @@ export class PlayRepository extends AbstractRepository<PlayEntity>{
         @InjectRepository(PlayEntity)
         protected readonly playRepo: Repository<PlayEntity>
     ){
-        super(playRepo)
+        super(playRepo, "Play")
     }
 }

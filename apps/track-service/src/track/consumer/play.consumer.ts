@@ -1,30 +1,24 @@
-// import { Process, Processor } from '@nestjs/bull';
-// import { Job } from 'bull';
-// import { Config } from 'src/lib/config';
-// import { TrackService } from '../track.service';
-// import { UserService } from 'src/res/user/user.service';
-// import { InjectRepository } from '@nestjs/typeorm';
-// import { PlayEntity } from '../entities/play.entity';
-// import { Repository } from 'typeorm';
+import { Process, Processor } from '@nestjs/bull';
+import { Job } from 'bull';
+import { Config } from '@libs/common/config';
+import { TrackRepository } from '../repos/track.repository';
+import { PlayRepository } from '../repos/play.repository';
 
-// @Processor(Config.TRACK_PLAY_QUEUE)
-// export class TrackPlayConsumer {
-//   constructor(
-//     @InjectRepository(PlayEntity)
-//     private readonly playRepository: Repository<PlayEntity>,
+@Processor(Config.TRACK_PLAY_QUEUE)
+export class TrackPlayConsumer {
+  constructor(
+    private trackRepository: TrackRepository,
+    private playRepository: PlayRepository,
+  ) {}
 
-//     private readonly trackService: TrackService,
-//     private readonly userService: UserService,
-//   ) {}
-
-//   @Process()
-//   async transcode(job: Job<unknown>) {
-//     const trackId = job.data['trackId'];
-//     const userId = job.data['userId'];
-
-//     const user = await this.userService.findById(userId);
-//     const track = await this.trackService.findById(trackId);
-//     const play = this.playRepository.create({ user, track });
-//     await this.playRepository.save(play);
-//   }
-// }
+  @Process()
+  async transcode(job: Job<unknown>) {
+    const trackId = job.data['trackId'];
+    const userId = job.data['userId'];
+    const track = await this.trackRepository.findOne(trackId);
+    await this.playRepository.createWithoutUniqueCheck({
+      user_id: userId,
+      track_id: track.id,
+    });
+  }
+}

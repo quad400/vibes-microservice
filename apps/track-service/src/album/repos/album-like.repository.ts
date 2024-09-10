@@ -10,6 +10,6 @@ export class AlbumLikeRepository extends AbstractRepository<AlbumLikeEntity>{
         @InjectRepository(AlbumLikeEntity)
         protected readonly albumLikeRepo: Repository<AlbumLikeEntity>
     ){
-        super(albumLikeRepo)
+        super(albumLikeRepo, "Album Like")
     }
 }

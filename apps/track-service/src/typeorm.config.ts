@@ -9,6 +9,7 @@ import { FavouriteAlbumEntity } from 'apps/user-service/src/user/entities/favour
 import { TrackEntity } from './track/entities/track.entity';
 import { PlayEntity } from './track/entities/play.entity';
 import { TrackLikeEntity } from './track/entities/track-like.entity';
+import { FavouriteTrackEntity } from 'apps/user-service/src/user/entities/favourite-track.entity';
 
 export const typeOrmConfig: DataSourceOptions = {
   type: 'postgres',
@@ -26,8 +27,9 @@ export const typeOrmConfig: DataSourceOptions = {
     ArtistEntity,
     FavouriteAlbumEntity,
     TrackEntity,
-      PlayEntity,
-      TrackLikeEntity
+    PlayEntity,
+    TrackLikeEntity,
+    FavouriteTrackEntity,
   ],
   migrations: [
     'dist/apps/track-service/apps/track-service/src/migrations/*.js',

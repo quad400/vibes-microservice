@@ -10,7 +10,7 @@ export class FollowRepository extends AbstractRepository<FollowEntity> {
     @InjectRepository(FollowEntity)
     protected readonly followRepo: Repository<FollowEntity>,
   ) {
-    super(followRepo); 
+    super(followRepo, "Follow"); 
   }
 }
 

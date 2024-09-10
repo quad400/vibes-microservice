@@ -14,6 +14,7 @@ import { CurrentUser } from './decorator/current-user.decorator';
 import { UserEntity } from './entities/user.entity';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { QueryOptionsDto } from '@libs/common/utils/pagination';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @UseInterceptors(CacheInterceptor)
 @Controller('user')
@@ -26,8 +27,17 @@ export class UserController {
   }
 
   @Get('me')
-  async getMe(@CurrentUser() user: UserEntity) {
+  @MessagePattern('get_user')
+  async getMe(
+    @CurrentUser() user: UserEntity,
+    @Payload() data: { userId: string },
+  ) {
     return await this.userService.getMe(user.id);
+  }
+
+  @MessagePattern('get_user')
+  async getUserByIdService(@Payload() data: { userId: string }) {
+    return await this.userService.getMe(data.userId);
   }
 
   @Get('profile/:userId')
@@ -73,5 +83,21 @@ export class UserController {
     @Query() query: QueryOptionsDto,
   ) {
     return await this.userService.getAlbumFavourites(user.id, query);
+  }
+
+  @Put('track-favourites/add-remove-track/:trackId')
+  async addOrRemoveTrackFavourite(
+    @CurrentUser() user: UserEntity,
+    @Param('trackId') trackId: string,
+  ) {
+    return await this.userService.addOrRemoveFavouriteTrack(user.id, trackId);
+  }
+
+  @Get('track-favourites')
+  async getTrackFavourite(
+    @CurrentUser() user: UserEntity,
+    @Query() query: QueryOptionsDto,
+  ) {
+    return await this.userService.getTrackFavourites(user.id, query);
   }
 }

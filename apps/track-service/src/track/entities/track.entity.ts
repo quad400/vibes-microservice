@@ -11,6 +11,7 @@ import { TrackLikeEntity } from './track-like.entity';
 import { PlayEntity } from './play.entity';
 import { AlbumEntity } from '../../album/entities/album.entity';
 import { AbstractEntity } from '@libs/common/entity/abstract.entity';
+import { TrackType } from '@libs/common/enums/track.enum';
 
 @Entity('tracks')
 export class TrackEntity extends AbstractEntity {
@@ -35,6 +36,8 @@ export class TrackEntity extends AbstractEntity {
   @Column({nullable: false})
   artist_id: string
 
+  @Column({enum: TrackType, default: TrackType.SINGLE})
+  track_type: TrackType
   // @ManyToMany(() => PlaylistEntity, (playlist) => playlist.tracks)
   // playlists: PlaylistEntity[];
 
@@ -52,6 +55,10 @@ export class TrackEntity extends AbstractEntity {
 
   @Column({default: 0, type: "int"})
   track_plays_count: number
+
+  @Column({default: 0, type: "int"})
+  track_likes_count: number
+
   @OneToMany(() => PlayEntity, (play) => play.track)
   plays: PlayEntity[];
 }

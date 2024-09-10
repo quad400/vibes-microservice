@@ -10,6 +10,6 @@ export class TrackRepository extends AbstractRepository<TrackEntity>{
         @InjectRepository(TrackEntity)
         protected readonly trackRepo: Repository<TrackEntity>
     ){
-        super(trackRepo)
+        super(trackRepo, "Track")
     }
 }

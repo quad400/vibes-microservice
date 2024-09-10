@@ -6,6 +6,7 @@ import { FollowRepository } from './repos/follow.repository';
 import { FavouriteAlbumRepository } from './repos/favourite-album.repository';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { Config } from '@libs/common/config';
+import { FavouriteTrackRepository } from './repos/favourite-track.repository';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { Config } from '@libs/common/config';
     UserRepository,
     FollowRepository,
     FavouriteAlbumRepository,
+    FavouriteTrackRepository,
   ],
 })
 export class UserModule {}

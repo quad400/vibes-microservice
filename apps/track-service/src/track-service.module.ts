@@ -9,8 +9,8 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from '@libs/common/common/guard/auth.guard';
 import { JwtModule } from '@nestjs/jwt';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TrackModule } from './track/track.module';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -21,6 +21,12 @@ import { TrackModule } from './track/track.module';
       store: redisStore,
       url: Config.REDIS_URL,
       ttl: 50000,
+    }),
+    BullModule.forRoot({
+      redis: {
+        host: Config.REDIS_HOST,
+        port: Config.REDIS_PORT,
+      }
     }),
     JwtModule.register({
       secret: Config.JWT_SECRET,

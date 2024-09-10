@@ -10,7 +10,7 @@ export class ArtistRepository extends AbstractRepository<ArtistEntity> {
     @InjectRepository(ArtistEntity)
     protected readonly artistRepo: Repository<ArtistEntity>,
   ) {
-    super(artistRepo); 
+    super(artistRepo, "Artist"); 
   }
 }
 

@@ -16,8 +16,8 @@ import { AlbumLikeRepository } from './repos/album-like.repository';
           transport: Transport.REDIS,
           options: {
             host: Config.REDIS_HOST,
-            port: Config.REDIS_PORT
-          }
+            port: Config.REDIS_PORT,
+          },
         },
       ],
     }),

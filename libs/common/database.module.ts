@@ -7,6 +7,7 @@ import { TrackLikeEntity } from 'apps/track-service/src/track/entities/track-lik
 import { TrackEntity } from 'apps/track-service/src/track/entities/track.entity';
 import { ArtistEntity } from 'apps/user-service/src/artist/entities/artist.entity';
 import { FavouriteAlbumEntity } from 'apps/user-service/src/user/entities/favourite-album.entity';
+import { FavouriteTrackEntity } from 'apps/user-service/src/user/entities/favourite-track.entity';
 import { FollowEntity } from 'apps/user-service/src/user/entities/user-follow.entity';
 import { UserEntity } from 'apps/user-service/src/user/entities/user.entity';
 
@@ -22,7 +23,8 @@ import { UserEntity } from 'apps/user-service/src/user/entities/user.entity';
       FavouriteAlbumEntity,
       TrackEntity,
       PlayEntity,
-      TrackLikeEntity
+      TrackLikeEntity,
+      FavouriteTrackEntity
     ]),
   ],
   exports: [
@@ -35,7 +37,8 @@ import { UserEntity } from 'apps/user-service/src/user/entities/user.entity';
       FavouriteAlbumEntity,
       TrackEntity,
       PlayEntity,
-      TrackLikeEntity
+      TrackLikeEntity,
+      FavouriteTrackEntity
     ]),
   ],
 })

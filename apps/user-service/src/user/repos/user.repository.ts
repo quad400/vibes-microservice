@@ -10,7 +10,7 @@ export class UserRepository extends AbstractRepository<UserEntity> {
     @InjectRepository(UserEntity)
     protected readonly userRepo: Repository<UserEntity>,
   ) {
-    super(userRepo); 
+    super(userRepo, "User"); 
   }
 }
 

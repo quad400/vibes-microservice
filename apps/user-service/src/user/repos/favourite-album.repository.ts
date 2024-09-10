@@ -10,7 +10,7 @@ export class FavouriteAlbumRepository extends AbstractRepository<FavouriteAlbumE
     @InjectRepository(FavouriteAlbumEntity)
     protected readonly favouriteAlbumRepo: Repository<FavouriteAlbumEntity>,
   ) {
-    super(favouriteAlbumRepo); 
+    super(favouriteAlbumRepo, "Album"); 
   }
 }
 
