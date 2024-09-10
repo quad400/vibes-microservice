@@ -1,7 +1,15 @@
 import { AbstractEntity } from 'libs/entity/abstract.entity';
 import { UserRole } from 'libs/enums/user.enum';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { FollowEntity } from './user-follow.entity';
+import { ArtistEntity } from '../../artist/entities/artist.entity';
+import { FavouriteAlbumEntity } from './favourite-album.entity';
 
 @Entity('users')
 export class UserEntity extends AbstractEntity {
@@ -40,4 +48,18 @@ export class UserEntity extends AbstractEntity {
 
   @Column({ default: false })
   is_verified: boolean;
+
+  @OneToMany(() => FollowEntity, (follow) => follow.following, { eager: false })
+  followings: FollowEntity[];
+
+  @OneToMany(() => FollowEntity, (follow) => follow.follower, { eager: false })
+  followers: FollowEntity[];
+
+  @OneToMany(() => FavouriteAlbumEntity, (favourite) => favourite.user, {
+    eager: false,
+  })
+  album_favourites: FavouriteAlbumEntity[];
+
+  @OneToOne(() => ArtistEntity, (artist) => artist.user)
+  artist: ArtistEntity;
 }

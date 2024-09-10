@@ -17,7 +17,6 @@
       "sourceRoot": "apps/api-gateway/src",
       "compilerOptions": {
         "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
-
       }
     },
     "user-service": {
@@ -36,6 +35,15 @@
       "sourceRoot": "libs",
       "compilerOptions": {
         "tsConfigPath": "libs/tsconfig.lib.json"
+      }
+    },
+    "track-service": {
+      "type": "application",
+      "root": "apps/track-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/track-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/track-service/tsconfig.app.json"
       }
     }
   }

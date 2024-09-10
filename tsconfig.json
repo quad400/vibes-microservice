@@ -22,7 +22,7 @@
         "apps/*/src"
       ],
       "@libs/common/*": [
-        "libs/*",
+        "libs/*"
       ]
     }
   }

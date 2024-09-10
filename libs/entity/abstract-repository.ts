@@ -3,6 +3,8 @@ import {
   FindOneOptions,
   FindManyOptions,
   DeepPartial,
+  SelectQueryBuilder,
+  Like,
 } from 'typeorm';
 import { NotFoundException, ConflictException } from '@nestjs/common';
 import { AbstractEntity } from './abstract.entity';
@@ -11,26 +13,34 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
   constructor(protected readonly repository: Repository<T>) {
     this.repository = repository;
   }
-
   async save(entity: T): Promise<T> {
     return this.repository.save(entity);
   }
 
-  // Create method with uniqueness check and active records only
-  async create(data: Partial<T>, uniqueField: string): Promise<T> {
-    const whereCondition = {
-      [uniqueField]: data[uniqueField],
-      is_deleted: false,
-    } as any; // Casting as any to avoid type error
-
-    const exists = await this.repository.findOne({
-      where: whereCondition,
+  // Unique check method
+  async checkUnique(
+    data: Record<string, any>,
+    uniqueField: string,
+  ): Promise<boolean> {
+    
+    const entity = await this.repository.findOne({
+      where: {
+        [uniqueField]: data[uniqueField],
+        is_deleted: false,
+      } as FindOneOptions['where'],
     });
-    if (exists) {
+
+    if (entity) {
       throw new ConflictException(
-        `${String(uniqueField)} "${data[uniqueField]}" already exists in the database.`,
+        `Entity with ${uniqueField} "${data[uniqueField]}" already exists.`,
       );
     }
+    return true;
+  }
+
+  // Create method with uniqueness check and active records only
+  async create(data: DeepPartial<T>, uniqueField?: string): Promise<T> {
+    await this.checkUnique(data, uniqueField);
     return await this.repository.save(data as T);
   }
 
@@ -49,32 +59,73 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
   }
 
   // Find one method with isDeleted check
-  async findOneData(data: string, options?: FindOneOptions<T>): Promise<T> {
+  async findOneData({
+    data,
+    bypassExistenceCheck = false,
+    options,
+  }: {
+    data: Record<string, any>;
+    bypassExistenceCheck?: boolean;
+    options?: FindOneOptions<T>;
+  }): Promise<T> {
     const entity = await this.repository.findOne({
-      where: { data, is_deleted: false } as FindOneOptions['where'],
+      where: { ...data, is_deleted: false } as FindOneOptions['where'],
       ...options,
     });
+
+    if (!entity && !bypassExistenceCheck) {
+      throw new NotFoundException(
+        `Entity with ID "${typeof data === 'string' ? data : JSON.stringify(data)}" does not exist or has been deleted.`,
+      );
+    }
+
+    return entity;
+  }
+
+  // Find one method without isDeleted check
+  async findOneWithoutDeleteCheck({
+    data,
+    options,
+  }: {
+    data: Record<string, any>;
+    options?: FindOneOptions<T>;
+  }): Promise<T> {
+    const entity = await this.repository.findOne({
+      where: { ...data } as FindOneOptions['where'],
+      ...options,
+    });
+
     if (!entity) {
       throw new NotFoundException(
-        `Entity with ID "${data}" does not exist or has been deleted.`,
+        `Entity with ID "${typeof data === 'string' ? data : JSON.stringify(data)}" does not exist.`,
       );
     }
     return entity;
   }
 
   // Pagination method with isDeleted check and total count
-  async paginatedFind(
-    options: FindManyOptions<T>,
-    page: number = 1,
-    limit: number = 10,
-  ): Promise<{
+  async paginatedFind({
+    options,
+    search,
+    page = 1,
+    limit = 10,
+  }: {
+    options: FindManyOptions<T>;
+    page: number;
+    limit: number;
+    search?: string;
+  }): Promise<{
     data: T[];
     total: number;
     currentPage: number;
     hasNextPage: boolean;
     hasPreviousPage: boolean;
   }> {
-    const whereCondition = { is_deleted: false } as FindManyOptions['where'];
+    const whereCondition = {
+      is_deleted: false,
+      ...(options.where as FindManyOptions['where']),
+      ...(search && { name: Like(`%${search}%`) }),
+    } as FindManyOptions['where'];
     const [data, total] = await this.repository.findAndCount({
       where: whereCondition,
       skip: (page - 1) * limit,
@@ -95,6 +146,30 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
     };
   }
 
+  async findAll({
+    options,
+    search,
+  }: {
+    options: FindManyOptions<T>;
+    search?: string;
+  }) {
+    const whereCondition = {
+      is_deleted: false,
+      ...(options.where as FindManyOptions['where']),
+      ...(search && { name: Like(`%${search}%`) }),
+    } as FindManyOptions['where'];
+    const data = await this.repository.find({
+      where: whereCondition,
+      ...options,
+    });
+
+    return data;
+  }
+
+  createQueryBuilder(alias: string): SelectQueryBuilder<T> {
+    return this.repository.createQueryBuilder(alias);
+  }
+
   // Soft delete: Set isDeleted to true instead of removing the entity
   async softDelete(id: string): Promise<void> {
     const entity = await this.findOne(id);
@@ -102,8 +177,13 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
     await this.repository.save(entity);
   }
 
+  async delete(id: string): Promise<void> {
+    const entity = await this.findOne(id);
+    await this.repository.remove(entity);
+  }
+
   // Update method with existence check
-  async update(id: string, data: DeepPartial<T>): Promise<T> {
+  async update(id: string, data: Partial<T>, uniqueField?: string): Promise<T> {
     const entity = await this.repository.findOne({
       where: { id, is_deleted: false } as FindOneOptions['where'],
     });
@@ -113,7 +193,24 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
       );
     }
 
+    if (uniqueField) await this.checkUnique(data, uniqueField);
+
     Object.assign(entity, data);
     return await this.repository.save(entity);
+  }
+
+  // Restore soft deleted entity
+  async restore(id: string): Promise<void> {
+    const entity = await this.repository.findOneBy({
+      id: id,
+      is_deleted: true,
+    } as FindOneOptions['where']);
+    if (!entity) {
+      throw new NotFoundException(
+        `Cannot restore. Entity with ID "${id}" does not exist or has not been deleted.`,
+      );
+    }
+    entity['is_deleted'] = false;
+    await this.repository.save(entity);
   }
 }

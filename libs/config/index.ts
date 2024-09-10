@@ -9,13 +9,19 @@ class Configuration {
     readonly IS_PRODUCTION = process.env.NODE_ENV === "production"? true: false
 
     @IsString()
-    readonly DB_URL_USER = process.env.DB_URL_USER
+    readonly DB_URL_USER = process.env.DB_URL_USER    
+
+    @IsString()
+    readonly DB_URL_TRACK = process.env.DB_URL_USER
     
     @IsString()
     readonly DB_HOST = process.env.DB_HOST
     
     @IsString()
     readonly DB_DATABASE_USER = process.env.DB_DATABASE_USER
+    
+    @IsString()
+    readonly DB_DATABASE_TRACK = process.env.DB_DATABASE_TRACK
     
     @IsString()
     readonly DB_DATABASE = process.env.DB_DATABASE
@@ -36,10 +42,16 @@ class Configuration {
     readonly USER_PORT = Number(process.env.USER_PORT)
 
     @IsString()
+    readonly TRACK_PORT = Number(process.env.TRACK_PORT)
+
+    @IsString()
     readonly GATEWAY_HOST = process.env.GATEWAY_HOST
     
     @IsString()
     readonly USER_HOST = process.env.USER_HOST
+    
+    @IsString()
+    readonly TRACK_HOST = process.env.TRACK_HOST
 
     @IsString()
     readonly REDIS_HOST = process.env.REDIS_HOST
@@ -76,6 +88,9 @@ class Configuration {
 
     @IsString()
     readonly USER_SERVICE = "USER_SERVICE"
+    
+    @IsString()
+    readonly TRACK_SERVICE = "TRACK_SERVICE"
 }
 
 export const Config = new Configuration()

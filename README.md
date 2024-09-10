@@ -44,6 +44,9 @@ $ yarn run start:dev <service name>
 # Run Migrations
 yarn run generate:migration <ServiceName> <MigrationName>
 
+# Run Migrations
+yarn run run:migration <ServiceName>
+
 # production mode
 $ yarn run start:prod
 ```

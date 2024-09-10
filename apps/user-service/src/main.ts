@@ -26,16 +26,15 @@ async function bootstrap() {
     defaultVersion: [VERSION_NEUTRAL, '1'],
   });
 
-  app.connectMicroservice<RedisOptions>({name: Config.USER_SERVICE})
-
   app.useGlobalPipes(ValidatorPipe());
 
   const httpAdapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new HttpExceptions(httpAdapterHost));
   await app.startAllMicroservices();
 
+  
   await app.listen(Config.USER_PORT, Config.USER_HOST);
   console.log(`Server is running on ${Config.USER_HOST}:${Config.USER_PORT}`);
   console.log(`Application is running with base url of ${Config.USER_HOST}:${Config.USER_PORT}/api/v1`); 
-}
+  }
 bootstrap();

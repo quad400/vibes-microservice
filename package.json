@@ -1,5 +1,5 @@
 {
-  "name": "api-gateway",
+  "name": "vibes-microservices",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -11,6 +11,7 @@
     "start": "nest start",
     "start:dev-libs": "nest build libs --watch",
     "start:dev-gateway": "nest start api-gateway --watch",
+    "start:dev-track": "nest start track-service --watch",
     "start:dev-user": "nest start user-service --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/api-gateway/main",
@@ -21,7 +22,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/api-gateway/test/jest-e2e.json",
     "generate:migration": "ts-node migration.ts generate",
-    "run:migration": "ts-node migration.ts run"
+    "run:migration": "ts-node migration.ts run",
+    "revert:migration": "ts-node migration.ts revert",
+    "drop:migration": "ts-node migration.ts drop"
   },
   "dependencies": {
     "@nestjs/bull": "^10.2.1",
@@ -30,6 +33,7 @@
     "@nestjs/config": "^3.2.3",
     "@nestjs/core": "^10.0.0",
     "@nestjs/jwt": "^10.2.0",
+    "@nestjs/mapped-types": "^2.0.5",
     "@nestjs/microservices": "^10.4.1",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",

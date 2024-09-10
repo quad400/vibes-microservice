@@ -21,11 +21,11 @@ export class UpdateUserDto {
     
     @IsEmail()
     @IsOptional()
-    email?: object;
+    email?: string;
     
     @IsString()
     @IsOptional()
-    username?: object;
+    username?: string;
 }
 
 export class FollowUserDto{

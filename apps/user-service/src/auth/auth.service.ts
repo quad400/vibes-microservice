@@ -19,18 +19,12 @@ import {
   VerifyUserDto,
 } from './dto/auth.dto';
 import { Response } from '@libs/common/utils/response';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from '../user/entities/user.entity';
-import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userRepository: UserRepository,
-
-    @InjectRepository(UserEntity)
-    private readonly userRepo: Repository<UserEntity>,
 
     @InjectQueue(Config.CREATE_USER_QUEUE)
     private readonly createUserQueue: Queue,
@@ -39,15 +33,11 @@ export class AuthService {
   ) {}
 
   async create(data: CreateUserDto) {
-    const isUser = await this.findByEmail(data.email);
-    if (isUser) {
-      throw new BadRequestException('User already exists');
-    }
     const salt = await bcrypt.genSalt(10);
 
     const code = generateCode();
     data.password = await bcrypt.hash(data.password, salt);
-    const user = await this.userRepository.create(data, data.email);
+    const user = await this.userRepository.create(data, 'email');
     user.otp_code = code;
     user.otp_expired_date = new Date(Date.now() + 1000 * 60 * 1);
 
@@ -144,7 +134,7 @@ export class AuthService {
   }
 
   async findByEmailWithSelect(email: string) {
-    let user = await this.userRepo
+    let user = await this.userRepository
       .createQueryBuilder('users')
       .addSelect('users.password')
       .addSelect('users.otp_code')
@@ -160,6 +150,6 @@ export class AuthService {
   }
 
   async findByEmail(email: string) {
-    return await this.userRepository.findOneData(email);
+    return await this.userRepository.findOneData({data: {email}});
   }
 }
