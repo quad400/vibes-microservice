@@ -41,9 +41,11 @@ export class AlbumService {
     )) as ArtistEntity;
 
     const album = await this.albumRepository.findOneData({
-      data: {
-        id: albumId,
-        artist_id: artist.id,
+      options: {
+        where: {
+          id: albumId,
+          artist_id: artist.id,
+        },
       },
     });
 
@@ -112,9 +114,11 @@ export class AlbumService {
     const album = await this.albumRepository.findOne(albumId);
 
     const existingLike = await this.albumLikeRepository.findOneData({
-      data: {
-        user_id: userId,
-        album: { id: album.id },
+      options: {
+        where: {
+          user_id: userId,
+          album: { id: album.id },
+        },
       },
       bypassExistenceCheck: true,
     });
@@ -138,7 +142,7 @@ export class AlbumService {
       this.albumLikeRepository.create({
         user_id: userId,
         album: { id: album.id },
-      })
+      });
       return Response.success(null, 'Album liked successfully', HttpStatus.OK);
     }
   }
@@ -172,20 +176,22 @@ export class AlbumService {
     );
   }
 
-
   async deleteAlbum(userId: string, albumId: string) {
-    
     const artist = (await lastValueFrom(
       this.userClient.send('get_artist_by_id', { albumId }),
     )) as ArtistEntity;
-    
+
     const album = await this.albumRepository.findOneData({
-      data: { id: albumId, artist_id: artist.id  },
+      options: {
+        where: {
+          id: albumId,
+          artist_id: artist.id,
+        },
+      },
     });
-    
-    await this.albumRepository.softDelete(album.id)
+
+    await this.albumRepository.softDelete(album.id);
 
     return Response.success(null, 'Album deleted successfully', HttpStatus.OK);
   }
-
 }

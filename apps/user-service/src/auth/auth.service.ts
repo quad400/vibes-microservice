@@ -150,6 +150,8 @@ export class AuthService {
   }
 
   async findByEmail(email: string) {
-    return await this.userRepository.findOneData({data: {email}});
+    return await this.userRepository.findOneData({
+      options: { where: { email } },
+    });
   }
 }

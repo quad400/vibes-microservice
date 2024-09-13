@@ -72,7 +72,7 @@ export class TrackService {
     )) as ArtistEntity;
 
     const track = await this.trackRepository.findOneData({
-      data: { id: trackId, artist_id: artist.id },
+      options: { where: { id: trackId, artist_id: artist.id } },
     });
 
     let album: AlbumEntity;
@@ -131,8 +131,18 @@ export class TrackService {
     );
   }
 
-  async getTrack(userId: string, trackId: string) {
-    await this.trackPlayQueue.add({ trackId, userId });
+  async getTrack({
+    trackId,
+    userId,
+    isPlay = true,
+  }: {
+    trackId: string;
+    userId?: string;
+    isPlay?: boolean;
+  }) {
+    if (isPlay) {
+      await this.trackPlayQueue.add({ trackId, userId });
+    }
 
     let track = await this.trackRepository.findOne(trackId);
     track = await this.trackRepository.update(trackId, {
@@ -157,7 +167,7 @@ export class TrackService {
     )) as ArtistEntity;
 
     await this.trackRepository.findOneData({
-      data: { artist_id: artist.id, id: trackId },
+      options: { where: { artist_id: artist.id, id: trackId } },
     });
     await this.trackRepository.softDelete(trackId);
 
@@ -218,11 +228,13 @@ export class TrackService {
 
   async likeUnLikeTrack(userId: string, trackId: string) {
     const existingLike = await this.trackLikeRepository.findOneData({
-      data: {
-        user_id: userId,
-        track_id: trackId,
+      options: {
+        where: {
+          user_id: userId,
+          track_id: trackId,
+        },
       },
-      bypassExistenceCheck: true
+      bypassExistenceCheck: true,
     });
 
     const track = await this.trackRepository.findOne(trackId);
@@ -254,7 +266,7 @@ export class TrackService {
     const result = await this.trackLikeRepository.paginatedFind({
       options: {
         where: {
-          track_id:  trackId,
+          track_id: trackId,
         },
         order: { created_at: 'DESC' },
       },

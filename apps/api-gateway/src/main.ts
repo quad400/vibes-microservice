@@ -8,8 +8,6 @@ import { Config } from 'libs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  // Setup Redis Microservice configuration
   app.connectMicroservice({
     transport: Transport.REDIS,
     options: {
@@ -18,7 +16,6 @@ async function bootstrap() {
   });
 
   app.setGlobalPrefix('api');
-
   app.enableVersioning({
     type: VersioningType.URI,
     prefix: 'v',
@@ -26,7 +23,6 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(ValidatorPipe());
-
   const httpAdapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new HttpExceptions(httpAdapterHost));
   await app.startAllMicroservices();

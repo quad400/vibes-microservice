@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { FollowUserDto, UpdateUserDto } from './dtos/user.dto';
-import { CurrentUser } from './decorator/current-user.decorator';
+import { CurrentUser } from '../../../../libs/common/decorator/current-user.decorator';
 import { UserEntity } from './entities/user.entity';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { QueryOptionsDto } from '@libs/common/utils/pagination';
@@ -26,6 +26,7 @@ export class UserController {
     return await this.userService.updateMe(data, user.id);
   }
 
+  
   @Get('me')
   @MessagePattern('get_user')
   async getMe(

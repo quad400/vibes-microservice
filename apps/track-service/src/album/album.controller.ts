@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { AlbumService } from './album.service';
 import { CacheInterceptor } from '@nestjs/cache-manager';
-import { CurrentUser } from 'apps/user-service/src/user/decorator/current-user.decorator';
+import { CurrentUser } from '@libs/common/common/decorator/current-user.decorator';
 import { UserEntity } from 'apps/user-service/src/user/entities/user.entity';
 import { CreateAlbumDto, UpdateAlbumDto } from './dto/album.dto';
 import { QueryOptionsDto } from '@libs/common/utils/pagination';

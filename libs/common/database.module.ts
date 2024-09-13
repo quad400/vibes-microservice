@@ -1,5 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PlaylistTrackEntity } from 'apps/api-gateway/src/playlist/entities/playlist-track.entity';
+import { PlaylistEntity } from 'apps/api-gateway/src/playlist/entities/playlist.entity';
 import { AlbumLikeEntity } from 'apps/track-service/src/album/entities/album-like.entity';
 import { AlbumEntity } from 'apps/track-service/src/album/entities/album.entity';
 import { PlayEntity } from 'apps/track-service/src/track/entities/play.entity';
@@ -24,7 +26,9 @@ import { UserEntity } from 'apps/user-service/src/user/entities/user.entity';
       TrackEntity,
       PlayEntity,
       TrackLikeEntity,
-      FavouriteTrackEntity
+      FavouriteTrackEntity,
+      PlaylistEntity,
+      PlaylistTrackEntity
     ]),
   ],
   exports: [
@@ -38,7 +42,9 @@ import { UserEntity } from 'apps/user-service/src/user/entities/user.entity';
       TrackEntity,
       PlayEntity,
       TrackLikeEntity,
-      FavouriteTrackEntity
+      FavouriteTrackEntity,
+      PlaylistEntity,
+      PlaylistTrackEntity
     ]),
   ],
 })

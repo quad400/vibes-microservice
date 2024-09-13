@@ -14,6 +14,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { AlbumEntity } from 'apps/track-service/src/album/entities/album.entity';
 import { FavouriteAlbumRepository } from './repos/favourite-album.repository';
 import { FavouriteTrackRepository } from './repos/favourite-track.repository';
+import { TrackEntity } from 'apps/track-service/src/track/entities/track.entity';
 
 @Injectable()
 export class UserService {
@@ -42,9 +43,11 @@ export class UserService {
 
   async followUnfollowUser(userId: string, followId: string) {
     const existingFollow = await this.followRepository.findOneData({
-      data: {
-        follower_id: userId,
-        following_id: followId,
+      options: {
+        where: {
+          follower_id: userId,
+          following_id: followId,
+        },
       },
       bypassExistenceCheck: true,
     });
@@ -111,19 +114,22 @@ export class UserService {
   async addOrRemoveFavouriteAlbum(userId: string, albumId: string) {
     const user = await this.userRepository.findOne(userId);
 
-    const albumData = (await lastValueFrom(
+    const albumData = await lastValueFrom(
       this.trackClient.send('get_album', { albumId }),
-    ));
+    );
 
-    const album = albumData.data as AlbumEntity
+    const album = albumData.data as AlbumEntity;
 
     const data = {
       user_id: user.id,
       album_id: album.id,
     };
+
     const albumFavExist = await this.favouriteAlbumRepository.findOneData({
-      data,
-      bypassExistenceCheck: true
+      options: {
+        where: data
+      },
+      bypassExistenceCheck: true,
     });
 
     if (albumFavExist) {
@@ -158,9 +164,9 @@ export class UserService {
 
     const results = await Promise.all(
       result.data.map(async (albumFav) => {
-        const album = (await lastValueFrom(
+        const album = await lastValueFrom(
           this.trackClient.send('get_album', { albumId: albumFav.id }),
-        ));
+        );
 
         // Combine album with artist details
         return {
@@ -186,20 +192,20 @@ export class UserService {
   }
 
   async addOrRemoveFavouriteTrack(userId: string, trackId: string) {
-
-    const trackData = (await lastValueFrom(
+    const trackData = await lastValueFrom(
       this.trackClient.send('get_track', { trackId }),
-    ));
+    );
 
-    const track = trackData.data as AlbumEntity
+    const track = trackData.data as TrackEntity;
 
     const data = {
       user_id: userId,
       track_id: track.id,
     };
+
     const trackFavExist = await this.favouriteTrackRepository.findOneData({
-      data,
-      bypassExistenceCheck: true
+      options: { where: data },
+      bypassExistenceCheck: true,
     });
 
     if (trackFavExist) {
@@ -234,9 +240,9 @@ export class UserService {
 
     const results = await Promise.all(
       result.data.map(async (trackFav) => {
-        const track = (await lastValueFrom(
+        const track = await lastValueFrom(
           this.trackClient.send('get_track', { albumId: trackFav.id }),
-        ));
+        );
 
         // Combine album with artist details
         return {

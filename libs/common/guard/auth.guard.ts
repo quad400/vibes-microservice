@@ -38,7 +38,7 @@ import { Config } from '@libs/common/config';
         const payload = await this.jwtService.verifyAsync(token, {
           secret: Config.JWT_SECRET,
         });
-        
+      
         request['user'] = payload?.sub;
       } catch {
         throw new UnauthorizedException("Invalid User Token");

@@ -17,7 +17,6 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
     private readonly entityName: string,
   ) {
     this.repository = repository;
-
   }
   async save(entity: T): Promise<T> {
     return this.repository.save(entity);
@@ -28,7 +27,6 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
     data: Record<string, any>,
     uniqueField: string,
   ): Promise<boolean> {
-    
     const entity = await this.repository.findOne({
       where: {
         [uniqueField]: data[uniqueField],
@@ -51,7 +49,10 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
   }
 
   // Create method with uniqueness check and active records only
-  async createWithoutUniqueCheck(data: DeepPartial<T>, uniqueField?: string): Promise<T> {
+  async createWithoutUniqueCheck(
+    data: DeepPartial<T>,
+    uniqueField?: string,
+  ): Promise<T> {
     // await this.repository.create(data);
     return await this.repository.save(data as T);
   }
@@ -72,22 +73,22 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
 
   // Find one method with isDeleted check
   async findOneData({
-    data,
     bypassExistenceCheck = false,
     options,
   }: {
-    data: Record<string, any>;
+    data?: Record<string, any>;
     bypassExistenceCheck?: boolean;
     options?: FindOneOptions<T>;
   }): Promise<T> {
     const entity = await this.repository.findOne({
-      where: { ...data, is_deleted: false } as FindOneOptions['where'],
+      where: { is_deleted: false } as FindOneOptions['where'],
       ...options,
     });
+    options.where;
 
     if (!entity && !bypassExistenceCheck) {
       throw new NotFoundException(
-        `${this.entityName} with ID "${typeof data === 'string' ? data : JSON.stringify(data)}" does not exist or has been deleted.`,
+        `${this.entityName} with "${JSON.stringify(options.where)}" does not exist or has been deleted.`,
       );
     }
 
@@ -115,14 +116,13 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
     return entity;
   }
 
-  
   // Pagination method with isDeleted check and total count
   async paginatedFind({
     options,
     search,
     page = 1,
     limit = 10,
-    searchKey=SearchKey.NAME
+    searchKey = SearchKey.NAME,
   }: {
     options: FindManyOptions<T>;
     page?: number;
@@ -141,11 +141,11 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
       ...(options.where as FindManyOptions['where']),
       ...(search
         ? searchKey === SearchKey.NAME
-          ? { name: ILike(`%${search}%`) }  // Case-insensitive search for name
+          ? { name: ILike(`%${search}%`) } // Case-insensitive search for name
           : { title: ILike(`%${search}%`) } // Case-insensitive search for title
         : {}),
     } as FindManyOptions['where'];
-    
+
     const [data, total] = await this.repository.findAndCount({
       where: whereCondition,
       skip: (page - 1) * limit,
@@ -158,11 +158,11 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
     const hasPreviousPage = page > 1;
 
     return {
-      data,
       total,
       currentPage: page,
       hasNextPage,
       hasPreviousPage,
+      data,
     };
   }
 

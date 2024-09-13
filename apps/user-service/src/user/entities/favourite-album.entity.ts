@@ -14,6 +14,7 @@ export class FavouriteAlbumEntity extends AbstractEntity{
 
     @Column({nullable: false})
     album_id: string
+    
     @ManyToOne(()=> UserEntity, (user)=> user.album_favourites, {onDelete: "CASCADE"})
     @JoinColumn({name: "user_id"})
     user: UserEntity

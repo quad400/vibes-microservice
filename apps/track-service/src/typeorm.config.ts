@@ -10,6 +10,8 @@ import { TrackEntity } from './track/entities/track.entity';
 import { PlayEntity } from './track/entities/play.entity';
 import { TrackLikeEntity } from './track/entities/track-like.entity';
 import { FavouriteTrackEntity } from 'apps/user-service/src/user/entities/favourite-track.entity';
+import { PlaylistEntity } from 'apps/api-gateway/src/playlist/entities/playlist.entity';
+import { PlaylistTrackEntity } from 'apps/api-gateway/src/playlist/entities/playlist-track.entity';
 
 export const typeOrmConfig: DataSourceOptions = {
   type: 'postgres',
@@ -30,6 +32,8 @@ export const typeOrmConfig: DataSourceOptions = {
     PlayEntity,
     TrackLikeEntity,
     FavouriteTrackEntity,
+    PlaylistEntity,
+    PlaylistTrackEntity
   ],
   migrations: [
     'dist/apps/track-service/apps/track-service/src/migrations/*.js',

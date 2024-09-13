@@ -16,8 +16,10 @@ export class ArtistService {
 
   async createArtist(userId: string, data: CreateArtistDto) {
     const existedArtist = await this.artistRepository.findOneData({
-      data: {
-        user_id: userId,
+      options: {
+        where: {
+          user_id: userId,
+        },
       },
       bypassExistenceCheck: true,
     });
@@ -41,7 +43,7 @@ export class ArtistService {
 
   async updateArtist(userId: string, data: UpdateArtistDto) {
     const artist = await this.artistRepository.findOneData({
-      data: { user_id: userId },
+      options: { where: { user_id: userId } },
     });
 
     await this.artistRepository.update(artist.id, data, 'stage_name');
@@ -65,18 +67,20 @@ export class ArtistService {
     return artist;
   }
 
-  async getArtistByUserId(userId: string){
+  async getArtistByUserId(userId: string) {
     const artist = await this.artistRepository.findOneData({
-      data: {
-        user_id: userId
-      }
-    })
-    return artist
+      options: {
+        where: {
+          user_id: userId,
+        },
+      },
+    });
+    return artist;
   }
 
   async deleteArtist(userId: string) {
     const artist = await this.artistRepository.findOneData({
-      data: { user: { id: userId } },
+      options: { where: { user: { id: userId } } },
     });
 
     await this.artistRepository.softDelete(artist.id);

@@ -11,6 +11,7 @@ import { FollowEntity } from './user-follow.entity';
 import { ArtistEntity } from '../../artist/entities/artist.entity';
 import { FavouriteAlbumEntity } from './favourite-album.entity';
 import { FavouriteTrackEntity } from './favourite-track.entity';
+import { PlaylistEntity } from 'apps/api-gateway/src/playlist/entities/playlist.entity';
 
 @Entity('users')
 export class UserEntity extends AbstractEntity {
@@ -68,4 +69,11 @@ export class UserEntity extends AbstractEntity {
 
   @OneToOne(() => ArtistEntity, (artist) => artist.user)
   artist: ArtistEntity;
+
+  @OneToMany(()=> PlaylistEntity, (playlist)=> playlist.user)
+  playlists: PlaylistEntity[]
+
+  @OneToMany(()=> PlaylistEntity, (playlist_tracks)=> playlist_tracks.user)
+  playlist_tracks: PlaylistEntity[]
+  
 }
